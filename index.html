@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>100 Adventistas Dijeron</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Pantalla de inicio -->
+    <div class="splash-screen" id="splashScreen">
+
+        <div>
+            <H1>100  Adventistas  Dijeron</H1>
+        </div>
+
+        <div class="logo-container">
+            
+            <img src="LOGO JA.png" alt="Logo JA" id="logo">
+        </div>
+        <br><br>
+        <button class="start-button" onclick="startGame()">¡COMENZAR JUEGO!</button>
+    </div>
+
+    <!-- Contenedor principal del juego -->
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <div class="header">
+            <div class="round-indicator">Ronda <span id="currentRound">1</span></div>
+            <button onclick="showTemporaryX()" class="styled-button">Mostrar X</button>
+        </div>
+        
+        
+
+        <div class="team-scores">
+            <div class="team-score">
+                <div class="team-name">Equipo 1</div>
+                <div class="score-container">
+                    <div class="score-box">
+                        <div class="score-label">Puntaje de Ronda</div>
+                        <div class="score-value" id="team1RoundScore">0</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="score-label">Puntaje Total</div>
+                        <div class="score-value" id="team1TotalScore">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="team-score">
+                <div class="team-name">Equipo 2</div>
+                <div class="score-container">
+                    <div class="score-box">
+                        <div class="score-label">Puntaje de Ronda</div>
+                        <div class="score-value" id="team2RoundScore">0</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="score-label">Puntaje Total</div>
+                        <div class="score-value" id="team2TotalScore">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+
+        <div class="question" id="question"></div>
+        <div class="answers" id="answers"></div>
+
+        <div class="controls">
+            <button class="control-button" onclick="previousQuestion()">← Anterior</button>
+            <div class="score-buttons">
+                <button class="score-button" onclick="addToTeam(1)">+Equipo 1</button>
+                <button class="score-button" onclick="addToTeam(2)">+Equipo 2</button>
+            </div>
+            <button class="control-button" onclick="nextQuestion()">Siguiente →</button>
+        </div>
+        <div class="controls">
+            
+            
+        </div>
+        
+    </div>
+
+    <script>
+        const questions = [
+            {
+                round: 1,
+                question: "Pioneros de la Iglesia Adventista ",
+                answers: [
+                    { text: "Elena G. de White", points: 28 },                  
+                    { text: "Martin Lutero", points: 19 },
+                    { text: "Guillermo Miller", points: 12 },
+                    { text: "J. N. Andrews", points: 7 }, 
+                    { text: "Jaime White", points: 3 },                         
+                ]
+            },
+            {
+                round: 2,
+                question: "Palabra mas utilizada en la biblia",
+                answers: [
+                    { text: "Dios", points: 31 }, 
+                    { text: "Jesus", points: 24 },                 
+                    { text: "Amen", points: 17 },                                      
+                    { text: "Jehova", points: 11  },
+                    { text: "Señor", points: 6 },
+                ]
+            },
+            {
+                round: 3,
+                question: "Profetas mas conocidos de la biblia",
+                answers: [
+                    { text: "Samuel", points: 37 },
+                    { text: "Elias", points: 32 },
+                    { text: "Eliseo", points: 26 },
+                    { text: "Isaias", points: 19 },
+                    { text: "Jeremias", points: 14 },
+                ]
+            },
+            {
+                round: 4,
+                question: "Alimentos consumidos en la biblia",
+                answers: [
+                    { text: "Pan", points: 40 },
+                    { text: "Pescado", points: 35},
+                    { text: "Cordero", points: 21 },
+                    { text: "Higos", points: 16 },
+                    { text: "Trigo y cebada", points: 9 },
+                    { text: "Lentejas", points: 4}
+                ]
+            },
+            {
+                round: 5,
+                question: "Iglesias mas conocidas del Apocalipsis",
+                answers: [
+                    { text: "Filadelphia", points: 47 },
+                    { text: "Laodicea", points: 35 },
+                    { text: "Esmirna", points: 24 },
+                    { text: "Efeso", points: 14 },
+                    { text: "Tiatira", points: 6 },
+                ]
+            },
+            {
+                round: 6,
+                question: "Apostoles de Jesus",
+                answers: [
+                    { text: "Juan", points: 60 },
+                    { text: "Pedro", points: 51},
+                    { text: "Santiago", points: 44},
+                    { text: "Andres", points: 30 },
+                    { text: "Mateo", points: 17 },
+                ]
+            },
+            
+        ];
+
+        let currentQuestion = 0;
+        let team1Round = 0;
+        let team2Round = 0;
+        let team1Total = 0;
+        let team2Total = 0;
+
+        function startGame() {
+            document.getElementById('splashScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splashScreen').style.display = 'none';
+                document.getElementById('gameContainer').style.display = 'block';
+            }, 500);
+            displayQuestion(currentQuestion);
+        }
+
+        function displayQuestion(index) {
+            const question = questions[index];
+            document.getElementById('question').textContent = question.question;
+            document.getElementById('currentRound').textContent = question.round;
+            
+            const answersContainer = document.getElementById('answers');
+            answersContainer.innerHTML = '';
+
+            question.answers.forEach((answer, i) => {
+                const div = document.createElement('div');
+                div.className = 'answer';
+                div.innerHTML = `
+                    <span class="answer-text hidden">${answer.text}</span>
+                    <span class="points hidden">${answer.points}</span>
+                `;
+                div.onclick = () => revealAnswer(div);
+                answersContainer.appendChild(div);
+            });
+
+            // Resetear puntuaciones de ronda
+            team1Round = 0;
+            team2Round = 0;
+            updateScores();
+        }
+
+        let xClickCount = 1;  // Variable para llevar el conteo de toques
+        function showTemporaryX() {
+            // Crear un contenedor para las "X"
+            const xOverlay = document.createElement('div');
+            xOverlay.className = 'x-overlay';
+            
+            // Añadir la cantidad de "X" en función del número de toques
+            xOverlay.textContent = 'X '.repeat(xClickCount).trim(); // Repite la "X" según el contador
+            document.body.appendChild(xOverlay);
+            
+            // Mostrar con una animación suave
+            setTimeout(() => {
+                xOverlay.style.opacity = '1';
+            }, 10);
+            
+            // Ocultar después de 2 segundos
+            setTimeout(() => {
+                xOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    xOverlay.remove(); // Eliminar el elemento después de que se desvanezca
+                }, 400);
+            }, 1000);
+
+            // Incrementa el contador hasta 3 y luego lo reinicia a 1
+            xClickCount = xClickCount < 3 ? xClickCount + 1 : 1;
+        }
+
+
+        function revealAnswer(element) {
+            const textSpan = element.querySelector('.answer-text');
+            const pointsSpan = element.querySelector('.points');
+            
+            if (textSpan.classList.contains('hidden')) {
+                textSpan.classList.remove('hidden');
+                pointsSpan.classList.remove('hidden');
+                element.classList.add('revealed', 'reveal-animation');
+            }
+        }
+
+        function addToTeam(team) {
+            const revealedAnswers = document.querySelectorAll('.answer.revealed');
+            let points = 0;
+            
+            revealedAnswers.forEach(answer => {
+                const pointsElement = answer.querySelector('.points');
+                if (!pointsElement.classList.contains('counted')) {
+                    points += parseInt(pointsElement.textContent);
+                    pointsElement.classList.add('counted');
+                }
+            });
+
+            if (team === 1) {
+                team1Round += points;
+                team1Total += points;
+            } else {
+                team2Round += points;
+                team2Total += points;
+            }
+
+            updateScores();
+        }
+
+        function updateScores() {
+            document.getElementById('team1RoundScore').textContent = team1Round;
+            document.getElementById('team2RoundScore').textContent = team2Round;
+            document.getElementById('team1TotalScore').textContent = team1Total;
+            document.getElementById('team2TotalScore').textContent = team2Total;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion(currentQuestion);
+            } else {
+                showGameOver();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion(currentQuestion);
+            }
+        }
+
+        function showGameOver() {
+            const winner = team1Total > team2Total ? 'Equipo 1' : team1Total < team2Total ? 'Equipo 2' : 'Empate';
+            const gameContainer = document.getElementById('gameContainer');
+            
+            gameContainer.innerHTML = `
+            <div class="game-over" style="display: flex; align-items: center; justify-content: center; text-align: center; padding: 80px; gap: 50px; position: relative;">
+            <!-- Imagen izquierda -->
+            <img src="muchacha.png" alt="Imagen Izquierda" style="position: absolute; left: -150px; height: 500px;">
+            
+            <!-- Contenido del mensaje -->
+            <div style="padding: 0 100px;">
+                <h1 style="color:#00000; font-size: 5em; margin-bottom: 40px;">
+                    ¡Juego Terminado!
+                </h1>
+                <div style="font-size: 3em; margin-bottom: 30px;">
+                    ${winner === 'Empate' ? '¡Es un empate!' : `¡${winner} es el ganador!`}
+                </div>
+                <div style="font-size: 3.1em; margin-bottom: 40px;">
+                    Puntajes Finales:
+                    <br>
+                    Equipo 1: ${team1Total}
+                    <br>
+                    Equipo 2: ${team2Total}
+                </div>
+                <button class="start-button" onclick="restartGame()" style="font-size: 2.8em; color:#000000; padding: 15px 30px; margin-top: 30px;">
+                    Jugar de Nuevo
+                </button>
+            </div>
+            
+            <!-- Imagen derecha -->
+            <img src="muchacho.png" alt="Imagen Derecha" style="position: absolute; right: -150px; height: 550px;">
+            </div>`;      
+        }
+
+
+        function restartGame() {
+            currentQuestion = 0;
+            team1Round = 0;
+            team2Round = 0;
+            team1Total = 0;
+            team2Total = 0;
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('splashScreen').style.display = 'flex';
+            document.getElementById('splashScreen').style.opacity = '1';
+        }
+
+        // Inicializar el juego
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar logo si se proporciona
+            const logoImg = document.getElementById('logo');
+            // Aquí puedes establecer el src del logo cuando lo tengas
+            // logoImg.src = 'ruta-al-logo.png';
+        });
+
+        function useWildcard(team) {
+    // Mostrar mensaje temporal en la interfaz para indicar el cambio de persona
+    const message = document.createElement('div');
+    message.className = 'wildcard-message';
+    message.textContent = `¡Cambio de persona para el Equipo ${team}!`;
+    document.body.appendChild(message);
+
+    // Estilo temporal para el mensaje de cambio de persona
+    setTimeout(() => {
+        message.remove(); // Eliminar el mensaje después de 2 segundos
+    }, 2000);
+
+    // Aplicar un cambio de estilo temporal al puntaje del equipo
+    const scoreBox = team === 1 ? document.getElementById('team1TotalScore') : document.getElementById('team2TotalScore');
+    scoreBox.classList.add('highlight');
+    setTimeout(() => {
+        scoreBox.classList.remove('highlight');
+    }, 2000);
+    }
+        function displayQuestion(index) {
+    const question = questions[index];
+    document.getElementById('question').textContent = question.question;
+    document.getElementById('currentRound').textContent = question.round;
+
+    const answersContainer = document.getElementById('answers');
+    answersContainer.innerHTML = '';
+
+    question.answers.forEach((answer, i) => {
+        const div = document.createElement('div');
+        div.className = 'answer';
+        div.setAttribute('data-index', i + 1); // Asignar el índice (1-6) para cada respuesta
+        div.innerHTML = `
+            <span class="answer-text hidden">${answer.text}</span>
+            <span class="points hidden">${answer.points}</span>
+        `;
+        div.onclick = () => revealAnswer(div);
+        answersContainer.appendChild(div);
+    });
+
+    // Resetear puntuaciones de ronda
+    team1Round = 0;
+    team2Round = 0;
+    updateScores();
+}
+    </script>
+</body>
+</html>
